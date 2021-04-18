@@ -31,6 +31,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 client.connect(err => {
   console.log('connection err', err)
   const serviceCollection = client.db("mohanondaIT").collection("itService");
+  const adminCollection = client.db("mohanondaIT").collection("adminPanel");
   const ordersCollection = client.db("mohanondaIT").collection("serviceOrder");
   const reviewCollection = client.db("mohanondaIT").collection("review");
   console.log('Database connected successfully.');
@@ -60,6 +61,23 @@ client.connect(err => {
       })
   })
 
+  app.post('/totalOrders', (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email })
+      .toArray((err, admin) => {
+        // console.log('From Database Images.', items);
+        if (admin.length === 0) {
+          filter.email = email;
+        }
+        ordersCollection.find()
+          .toArray((err, total) => {
+            // console.log('From Database Images.', items);
+            res.send(total)
+          })
+      })
+
+  })
+
   app.get('/orders', (req, res) => {
     console.log(req.query.email);
     ordersCollection.find({ email: req.query.email })
@@ -73,6 +91,17 @@ client.connect(err => {
     const newEvent = req.body;
     //  console.log('adding new event', newEvent);
     serviceCollection.insertOne(newEvent)
+      .then(result => {
+        //  console.log('event count', result.insertedCount);
+        res.send(result.insertedCount > 0)
+      })
+  })
+
+
+  app.post('/addAdmin', (req, res) => {
+    const newEvent = req.body;
+    //  console.log('adding new event', newEvent);
+    adminCollection.insertOne(newEvent)
       .then(result => {
         //  console.log('event count', result.insertedCount);
         res.send(result.insertedCount > 0)
