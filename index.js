@@ -78,6 +78,17 @@ client.connect(err => {
 
   })
 
+
+  app.post('/isAdmin', (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email })
+      .toArray((err, check) => {
+        // console.log('From Database Images.', items);
+        res.send(check.length > 0);
+      })
+
+  })
+
   app.get('/orders', (req, res) => {
     console.log(req.query.email);
     ordersCollection.find({ email: req.query.email })
